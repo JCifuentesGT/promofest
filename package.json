@@ -1,0 +1,17 @@
+{
+  "name": "promofest",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "docker compose up --build",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "docker compose build",
+    "down": "docker compose down",
+    "lint": "npm run lint --workspaces"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}
