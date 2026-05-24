@@ -2,6 +2,7 @@ import { pool } from '../config/database';
 import { getItemsByIds } from '../repositories/catalog.repository';
 import {
   getEventConfigForUpdate,
+  getEventConfig,
   incrementConfirmedCount,
   createAttendee,
   linkAttendeeItems,
@@ -113,11 +114,11 @@ export async function confirmAttendance(input: ConfirmAttendanceInput) {
     logger.error('Background notification error', { error: err.message });
   });
 
+  const { spots_remaining } = await getEventConfig();
+
   return {
     attendee: fullAttendee,
     discounts: { servicesDiscount, productsDiscount },
-    spots_remaining: (await import('../repositories/attendee.repository'))
-      .getEventConfig()
-      .then(c => c.spots_remaining),
+    spots_remaining,
   };
 }

@@ -4,7 +4,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 COPY . .
 RUN npm run build
@@ -12,9 +12,15 @@ RUN npm run build
 # ── Stage 2: serve with Nginx ────────────────────────────
 FROM nginx:alpine AS runner
 
+# Railway injects PORT at runtime; default to 80 for local dev
+ENV PORT=80
+
 COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Use the nginx:alpine template entrypoint — it runs envsubst on *.template files
+# and writes the result to /etc/nginx/conf.d/, substituting only defined env vars.
+# nginx variables like $uri are NOT substituted because they are not env variables.
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/docker-entrypoint.sh", "nginx", "-g", "daemon off;"]
