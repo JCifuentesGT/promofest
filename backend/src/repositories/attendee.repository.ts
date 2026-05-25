@@ -120,3 +120,33 @@ export async function getAttendeeWithItems(attendeeId: string): Promise<Attendee
 
   return { ...attendeeRows[0], items: itemRows };
 }
+
+/** Admin: all confirmed attendees with their items, ordered newest first */
+export async function getAllAttendeesWithItems(): Promise<Attendee[]> {
+  const { rows } = await pool.query<Attendee & { items_json: CatalogItem[] | null }>(
+    `SELECT
+       a.*,
+       json_agg(
+         json_build_object(
+           'id',          ci.id,
+           'name',        ci.name,
+           'type',        ci.type,
+           'price',       ci.price,
+           'description', ci.description,
+           'active',      ci.active,
+           'created_at',  ci.created_at
+         ) ORDER BY ci.type, ci.name
+       ) FILTER (WHERE ci.id IS NOT NULL) AS items_json
+     FROM attendees a
+     LEFT JOIN attendee_items ai ON ai.attendee_id = a.id
+     LEFT JOIN catalog_items  ci ON ci.id = ai.item_id
+     WHERE a.status = 'confirmed'
+     GROUP BY a.id
+     ORDER BY a.created_at DESC`
+  );
+
+  return rows.map(({ items_json, ...row }) => ({
+    ...row,
+    items: items_json ?? [],
+  }));
+}

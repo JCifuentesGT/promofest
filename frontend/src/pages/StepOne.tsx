@@ -13,6 +13,8 @@ const schema = z.object({
 
 interface Props {
   defaultValues?: Partial<StepOneData>;
+  /** When provided, the email field is pre-filled and locked to this value */
+  lockedEmail?: string;
   onNext: (data: StepOneData) => void;
 }
 
@@ -24,11 +26,13 @@ const EVENT_DATES = [
   { label: 'Día 2 — Viernes 22 ago, 2:00 PM', value: '2025-08-22T14:00:00' },
 ];
 
-export default function StepOne({ defaultValues, onNext }: Props) {
+export default function StepOne({ defaultValues, lockedEmail, onNext }: Props) {
   const { register, handleSubmit, formState: { errors } } =
     useForm<StepOneData>({
       resolver: zodResolver(schema),
-      defaultValues,
+      defaultValues: lockedEmail
+        ? { ...defaultValues, email: lockedEmail }
+        : defaultValues,
     });
 
   return (
@@ -48,13 +52,23 @@ export default function StepOne({ defaultValues, onNext }: Props) {
         />
       </div>
 
-      <Input
-        label="Correo electrónico"
-        type="email"
-        placeholder="maria@empresa.com"
-        error={errors.email?.message}
-        {...register('email')}
-      />
+      {/* Email — pre-filled & locked to the authenticated account */}
+      <div className="relative">
+        <Input
+          label="Correo electrónico"
+          type="email"
+          placeholder="maria@empresa.com"
+          error={errors.email?.message}
+          readOnly={!!lockedEmail}
+          className={lockedEmail ? 'pr-10 cursor-not-allowed opacity-70' : ''}
+          {...register('email')}
+        />
+        {lockedEmail && (
+          <span className="absolute right-3 top-9 text-gray-500 text-xs select-none" title="Correo de tu cuenta">
+            🔒
+          </span>
+        )}
+      </div>
 
       <div className="w-full">
         <label className="label">Fecha y hora de asistencia</label>

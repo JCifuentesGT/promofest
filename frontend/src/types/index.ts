@@ -33,6 +33,9 @@ export interface Attendee {
   attend_at: string;
   services_discount: number;
   products_discount: number;
+  status: string;
+  notified_at: string | null;
+  created_at: string;
   items: CatalogItem[];
 }
 
@@ -47,6 +50,11 @@ export interface ConfirmResponse {
 export interface DiscountSummary {
   servicesDiscount: number;
   productsDiscount: number;
+}
+
+export interface AdminReport {
+  attendees: Attendee[];
+  event: EventStatus;
 }
 
 // Form data shape

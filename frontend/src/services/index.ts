@@ -1,5 +1,5 @@
 import api from './api';
-import { AuthResponse, CatalogItem, ConfirmResponse, EventStatus } from '../types';
+import { AdminReport, Attendee, AuthResponse, CatalogItem, ConfirmResponse, EventStatus } from '../types';
 
 // ── Auth ─────────────────────────────────────────────────
 export const authService = {
@@ -32,4 +32,17 @@ export const attendeeService = {
     item_ids: string[];
   }) =>
     api.post<ConfirmResponse>('/api/attendees/confirm', payload).then(r => r.data),
+
+  // Returns the logged-in user's confirmation, or null if none yet
+  getMyConfirmation: () =>
+    api.get<{ attendee: Attendee }>('/api/attendees/me')
+      .then(r => r.data.attendee)
+      .catch(err => {
+        if (err.response?.status === 404) return null;
+        throw err;
+      }),
+
+  // Admin: full attendee list + event stats
+  listAll: () =>
+    api.get<AdminReport>('/api/attendees').then(r => r.data),
 };

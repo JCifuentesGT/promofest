@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { pool } from './database';
 
 export async function runMigrations(): Promise<void> {
@@ -96,6 +97,32 @@ export async function runMigrations(): Promise<void> {
   } finally {
     client.release();
   }
+}
+
+/**
+ * Creates the admin user defined in ADMIN_EMAIL / ADMIN_PASSWORD env vars.
+ * Only runs when those vars are set AND no admin user exists yet.
+ * Safe to run on every boot — idempotent.
+ */
+export async function seedAdminUser(): Promise<void> {
+  const email    = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+  if (!email || !password) return;  // admin seeding not configured
+
+  const { rows } = await pool.query(
+    `SELECT id FROM users WHERE email = $1 AND role = 'admin' LIMIT 1`,
+    [email]
+  );
+  if (rows.length > 0) return; // already exists
+
+  const hashed = await bcrypt.hash(password, 12);
+  await pool.query(
+    `INSERT INTO users (email, password, role)
+     VALUES ($1, $2, 'admin')
+     ON CONFLICT (email) DO UPDATE SET role = 'admin', password = EXCLUDED.password`,
+    [email, hashed]
+  );
+  console.log(`✅ Admin user seeded: ${email}`);
 }
 
 export async function seedCatalog(): Promise<void> {

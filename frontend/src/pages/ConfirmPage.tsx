@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { catalogService, attendeeService, eventService } from '../services';
-import { CatalogItem, ConfirmResponse, EventStatus, StepOneData } from '../types';
+import { Attendee, CatalogItem, ConfirmResponse, EventStatus, StepOneData } from '../types';
 import StepOne from './StepOne';
 import StepTwo from './StepTwo';
 import ConfirmationSuccess from './ConfirmationSuccess';
+import AlreadyConfirmed from './AlreadyConfirmed';
 import { Alert, CapacityBar, Spinner } from '../components/ui';
 
 type Step = 1 | 2 | 'done';
@@ -20,17 +21,21 @@ export default function ConfirmPage() {
   const [apiError,    setApiError]    = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result,      setResult]      = useState<ConfirmResponse | null>(null);
+  const [existing,    setExisting]    = useState<Attendee | null | undefined>(undefined); // undefined = loading
 
-  // Load catalog and event status on mount
+  // Load catalog, event status, and check for existing confirmation
   useEffect(() => {
     Promise.all([
       catalogService.getAll(),
       eventService.getStatus(),
-    ]).then(([catalog, status]) => {
+      attendeeService.getMyConfirmation(),
+    ]).then(([catalog, status, myConfirmation]) => {
       setItems(catalog);
       setEventStatus(status);
+      setExisting(myConfirmation); // null = no confirmation yet
     }).catch(() => {
-      setApiError('Error al cargar el catálogo. Recarga la página.');
+      setApiError('Error al cargar datos. Recarga la página.');
+      setExisting(null);
     }).finally(() => setLoadingItems(false));
   }, []);
 
@@ -71,8 +76,8 @@ export default function ConfirmPage() {
     eventService.getStatus().then(setEventStatus).catch(() => null);
   };
 
-  // Full page loading
-  if (loadingItems) {
+  // Full page loading (waiting for catalog + confirmation check)
+  if (loadingItems || existing === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Spinner size="lg" />
@@ -80,7 +85,12 @@ export default function ConfirmPage() {
     );
   }
 
-  // Success screen
+  // Already confirmed in a previous session
+  if (existing) {
+    return <AlreadyConfirmed attendee={existing} onLogout={logout} />;
+  }
+
+  // Just confirmed in this session
   if (step === 'done' && result) {
     return <ConfirmationSuccess data={result} onReset={handleReset} />;
   }
@@ -141,7 +151,11 @@ export default function ConfirmPage() {
             )}
 
             {step === 1 && (
-              <StepOne defaultValues={stepOneData ?? undefined} onNext={handleStepOne} />
+              <StepOne
+                defaultValues={stepOneData ?? undefined}
+                lockedEmail={user?.email}
+                onNext={handleStepOne}
+              />
             )}
 
             {step === 2 && (

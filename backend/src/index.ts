@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { connectDB } from './config/database';
-import { runMigrations, seedCatalog } from './config/migrations';
+import { runMigrations, seedCatalog, seedAdminUser } from './config/migrations';
 import { logger } from './utils/logger';
 
 // ── Routes ───────────────────────────────────────────────
@@ -58,6 +58,7 @@ async function bootstrap() {
     await connectDB();
     await runMigrations();
     await seedCatalog();
+    await seedAdminUser();
     app.listen(PORT, () => {
       logger.info(`🚀 Backend running on http://localhost:${PORT}`);
     });
