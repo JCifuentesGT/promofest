@@ -59,10 +59,10 @@ Registra un nuevo usuario con rol `client`.
 
 **Errores:**
 
-| Código | Descripción |
-|---|---|
+| Código| Descripción 										  |
+|---	|---												  |
 | `400` | Email o contraseña inválidos (falla validación Zod) |
-| `409` | El email ya está registrado |
+| `409` | El email ya está registrado 						  |
 
 ---
 
@@ -94,10 +94,10 @@ Autentica un usuario existente.
 
 **Errores:**
 
-| Código | Descripción |
-|---|---|
-| `400` | Datos inválidos |
-| `401` | Credenciales incorrectas |
+| Código| Descripción 				|
+|---	|---						|
+| `400` | Datos inválidos 			|
+| `401` | Credenciales incorrectas 	|
 
 ---
 
@@ -240,13 +240,13 @@ Confirma la asistencia de un cliente al evento.
 }
 ```
 
-| Campo | Tipo | Validación |
-|---|---|---|
-| `first_name` | string | 1–100 caracteres |
-| `last_name` | string | 1–100 caracteres |
-| `email` | string | Formato email válido |
-| `attend_at` | string | ISO 8601 datetime |
-| `item_ids` | string[] | Al menos 1 UUID válido |
+| Campo 		| Tipo 		| Validación 				|
+|---			|---		|---						|
+| `first_name`	| string 	| 1–100 caracteres 			|
+| `last_name` 	| string 	| 1–100 caracteres 			|
+| `email` 		| string 	| Formato email válido 		|
+| `attend_at` 	| string	| ISO 8601 datetime 		|
+| `item_ids` 	| string[]	| Al menos 1 UUID válido	|
 
 **Respuesta exitosa — `201 Created`:**
 ```json
@@ -275,7 +275,7 @@ Confirma la asistencia de un cliente al evento.
 **Errores:**
 
 | Código | Descripción |
-|---|---|
+|---	|---|
 | `400` | Datos inválidos o ítems no encontrados |
 | `401` | Sin token o token expirado |
 | `409` | Ya existe confirmación para este email |
@@ -330,7 +330,7 @@ Retorna todos los asistentes confirmados con sus ítems y estadísticas del even
 **Errores:**
 
 | Código | Descripción |
-|---|---|
+|---	|---|
 | `401` | Sin token o token expirado |
 | `403` | El usuario no tiene rol `admin` |
 
@@ -356,15 +356,15 @@ Verifica que el servidor está operativo.
 
 ## Códigos de error comunes
 
-| Código HTTP | Significado |
-|---|---|
-| `400 Bad Request` | Datos de entrada inválidos (falla validación) |
-| `401 Unauthorized` | Token ausente, inválido o expirado |
-| `403 Forbidden` | Rol insuficiente para la operación |
-| `404 Not Found` | Recurso no encontrado |
-| `409 Conflict` | Conflicto de negocio (duplicado, cupo lleno) |
-| `429 Too Many Requests` | Rate limit excedido |
-| `500 Internal Server Error` | Error inesperado del servidor |
+| Código HTTP 					| Significado 									|
+|---							|---											|
+| `400 Bad Request` 			| Datos de entrada inválidos (falla validación)	|
+| `401 Unauthorized` 			| Token ausente, inválido o expirado 			|
+| `403 Forbidden` 				| Rol insuficiente para la operación 			|
+| `404 Not Found` 				| Recurso no encontrado 						|
+| `409 Conflict` 				| Conflicto de negocio (duplicado, cupo lleno)	|
+| `429 Too Many Requests`		| Rate limit excedido 							|
+| `500 Internal Server Error`	| Error inesperado del servidor 				|
 
 ---
 

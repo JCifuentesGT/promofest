@@ -60,15 +60,15 @@ Cada push a la rama `main` en GitHub dispara automáticamente el redeploy de amb
 
 Ir a la pestaña **Variables** del servicio backend y agregar:
 
-| Variable | Valor | Notas |
-|---|---|---|
-| `DATABASE_URL` | `${{PostgreSQL.DATABASE_URL}}` | Referencia al servicio PostgreSQL |
-| `JWT_SECRET` | cadena aleatoria segura ≥ 32 chars | Ej: usar `openssl rand -hex 32` |
-| `JWT_EXPIRES_IN` | `2h` | Opcional — default `2h` |
-| `FRONTEND_URL` | URL del servicio frontend | Se configura después de crear el frontend |
-| `EVENT_CAPACITY` | `50` | Opcional — default 50 |
-| `ADMIN_EMAIL` | `ventas@empresa.com` | Email del usuario administrador |
-| `ADMIN_PASSWORD` | contraseña segura | Mínimo 8 chars, incluir mayúsculas y símbolos |
+| Variable 			| Valor 								| Notas |
+|---				|---									|---|
+| `DATABASE_URL` 	| `${{PostgreSQL.DATABASE_URL}}`		| Referencia al servicio PostgreSQL |
+| `JWT_SECRET` 		| cadena aleatoria segura ≥ 32 chars 	| Ej: usar `openssl rand -hex 32` |
+| `JWT_EXPIRES_IN`	| `2h` 									| Opcional — default `2h` |
+| `FRONTEND_URL` 	| URL del servicio frontend 			| Se configura después de crear el frontend |
+| `EVENT_CAPACITY` 	| `50` 									| Opcional — default 50 |
+| `ADMIN_EMAIL` 	| `ventas@empresa.com` 					| Email del usuario administrador |
+| `ADMIN_PASSWORD` 	| contraseña segura 					| Mínimo 8 chars, incluir mayúsculas y símbolos |
 
 > **Seguridad:** Nunca usar contraseñas débiles como `123456` en producción. El admin tiene acceso a los datos de todos los asistentes.
 
@@ -105,9 +105,9 @@ Revisar los logs del servicio para confirmar:
 
 Ir a la pestaña **Variables** del servicio frontend:
 
-| Variable | Valor |
-|---|---|
-| `VITE_API_URL` | `https://<backend-url>.railway.app` |
+| Variable 		| Valor 							  |
+|---			|---								  |
+| `VITE_API_URL`| `https://<backend-url>.railway.app` |
 
 El `Dockerfile` del frontend declara `ARG VITE_API_URL` y `ENV VITE_API_URL=$VITE_API_URL` antes del `npm run build`, lo que permite a Railway pasarla durante el build.
 
@@ -115,9 +115,9 @@ El `Dockerfile` del frontend declara `ARG VITE_API_URL` y `ENV VITE_API_URL=$VIT
 
 Con la URL del frontend disponible, actualizar en el backend:
 
-| Variable | Valor |
-|---|---|
-| `FRONTEND_URL` | `https://<frontend-url>.railway.app` |
+| Variable 			| Valor 								|
+|---				|---									|
+| `FRONTEND_URL` 	| `https://<frontend-url>.railway.app` 	|
 
 ---
 
@@ -270,20 +270,20 @@ Railway detecta el push y redespliega automáticamente solo los servicios cuyo d
 
 ### Backend Service
 
-| Variable | Requerida | Descripción |
-|---|---|---|
-| `DATABASE_URL` | ✅ | URL de conexión PostgreSQL |
-| `JWT_SECRET` | ✅ | Clave secreta para JWT (≥ 32 chars) |
-| `PORT` | auto | Inyectado por Railway |
-| `JWT_EXPIRES_IN` | — | Default: `2h` |
-| `FRONTEND_URL` | — | URL del frontend para CORS |
-| `EVENT_CAPACITY` | — | Default: `50` |
-| `ADMIN_EMAIL` | — | Email del administrador |
-| `ADMIN_PASSWORD` | — | Contraseña del administrador |
+| Variable 			| Requerida | Descripción |
+|---				|---		|---|
+| `DATABASE_URL`	| ✅ 		| URL de conexión PostgreSQL |
+| `JWT_SECRET` 		| ✅ 		| Clave secreta para JWT (≥ 32 chars) |
+| `PORT` 			| auto 		| Inyectado por Railway |
+| `JWT_EXPIRES_IN` 	| — 		| Default: `2h` |
+| `FRONTEND_URL` 	| — 		| URL del frontend para CORS |
+| `EVENT_CAPACITY` 	| — 		| Default: `50` |
+| `ADMIN_EMAIL` 	| — 		| Email del administrador |
+| `ADMIN_PASSWORD` 	| — 		| Contraseña del administrador |
 
 ### Frontend Service
 
-| Variable | Requerida | Descripción |
-|---|---|---|
-| `VITE_API_URL` | ✅ | URL base del backend (build-time) |
-| `PORT` | auto | Inyectado por Railway en runtime |
+| Variable 		| Requerida | Descripción |
+|---			|---		|---								|
+| `VITE_API_URL`| ✅ 		| URL base del backend (build-time) |
+| `PORT` 		| auto 		| Inyectado por Railway en runtime |
