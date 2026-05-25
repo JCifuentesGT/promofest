@@ -349,9 +349,11 @@ Los descuentos de servicios y productos son independientes entre sí.
 |---|---|
 | [docs/API.md](docs/API.md) | Referencia completa de endpoints REST |
 | [docs/DATABASE.md](docs/DATABASE.md) | Diagrama ER y descripción de tablas |
-| [docs/FLOWS.md](docs/FLOWS.md) | Diagramas de flujo: confirmación, auth, notificaciones |
+| [docs/PromoFest_Diagramas.pdf](docs/PromoFest_Diagramas.pdf) | Diagramas de flujo en PDF (auth, confirmación, concurrencia, outbox, admin) |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Guía paso a paso para desplegar en Railway |
 | [DECISIONS.md](DECISIONS.md) | Decisiones de arquitectura y razonamiento técnico |
+
+> **Generar el PDF de diagramas:** `pip install matplotlib && python docs/generate_diagrams.py`
 
 ---
 

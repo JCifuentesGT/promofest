@@ -111,18 +111,51 @@ Ver Decisión 2 para el diseño detallado.
 
 ---
 
+---
+
+### Decisión 4 — Plataforma de despliegue: Railway
+
+**Problema:** Durante el desarrollo del proyecto, la máquina de trabajo disponible presentó limitaciones de capacidad que impedían levantar la pila completa de servicios (backend, frontend y base de datos PostgreSQL) mediante Docker Compose localmente. El entorno no contaba con los recursos mínimos (RAM, CPU, espacio en disco) para mantener los contenedores corriendo de manera estable al mismo tiempo que se desarrollaba y probaba la aplicación.
+
+**Opciones consideradas:**
+
+1. **Docker Compose local** — la opción natural para un entorno de desarrollo. Descartada por las limitaciones de hardware descritas.
+2. **VPS manual (DigitalOcean / Linode)** — mayor control, pero requiere configuración de servidor, gestión de certificados TLS, reverse proxy (nginx/caddy) y despliegue manual en cada cambio.
+3. **Railway** — PaaS orientado a desarrolladores. Provisiona los tres servicios (frontend, backend, PostgreSQL) desde el repositorio de GitHub, gestiona TLS, variables de entorno y networking interno de forma automática. El deploy se dispara con cada push a `main`.
+
+**Decisión: Railway.**
+
+Railway resolvió simultáneamente dos problemas:
+
+- **Infraestructura:** los servicios corren en la nube sin depender de la capacidad de la máquina local. El desarrollo se hace con el editor y los logs; los contenedores viven en Railway.
+- **Presentabilidad:** al contar con URLs públicas con HTTPS desde el primer deploy, el resultado pudo ser demostrado y evaluado sin requerir que el evaluador configure ningún entorno local.
+
+**Cómo está configurado:**
+
+| Servicio | Origen | Mecanismo |
+|---|---|---|
+| Backend | `backend/` (Dockerfile) | `railway.json` apunta al directorio; variables de entorno configuradas en el dashboard |
+| Frontend | `frontend/` (Dockerfile multi-stage) | `VITE_API_URL` se pasa como `--build-arg` para que Vite la hornee en el bundle en build time |
+| PostgreSQL | Servicio gestionado por Railway | Se referencia como `${{PostgreSQL.DATABASE_URL}}` en el backend |
+
+**Trade-offs aceptados:**
+- En el tier gratuito de Railway, los servicios pueden hibernar tras inactividad (cold start de ~5 s en la primera petición). Aceptable para demo y evaluación.
+- Dependencia de un proveedor externo para la base de datos. En producción real se evaluaría RDS (AWS) o Cloud SQL (GCP) para mayor SLA y backups automatizados.
+
+---
+
 ## Limitaciones conocidas y siguientes pasos
 
 | Limitación | Impacto a 100k usuarios | Solución |
 |---|---|---|
 | Lock de fila en `event_config` | Cuello de botella severo | Contador Redis atómico |
-| Notificación síncrona en memoria | Se pierde si el proceso muere | Worker + cola persistente |
+| Notificación simulada (logger) | No llega al equipo de ventas real | Integrar SendGrid / Twilio / Slack webhook |
 | JWT sin revocación | Tokens comprometidos siguen válidos | Redis allowlist o token rotation |
 | Sin paginación en catálogo | OK para ~10 items; lento para miles | Cursor-based pagination |
 | Sin rate limiting por IP en `/confirm` | Vulnerable a spam de confirmaciones | Rate limit granular + CAPTCHA |
 | Frontend recalcula descuentos localmente | Puede desincronizarse si cambian las reglas | Endpoint `POST /api/discount/preview` |
 
-**Lo que no implementé y reconozco:**
-- Tests unitarios (el `discount.service.ts` está diseñado para ser testeable, pero no hay suite configurada).
-- Refresh tokens — el JWT expira en 2h y el usuario debe volver a loguear.
-- Panel de administración para ver confirmaciones y estadísticas.
+**Lo que no se implementó en esta versión:**
+- Tests unitarios (`discount.service.ts` está diseñado para ser testeable sin DB ni HTTP, pero no hay suite configurada).
+- Refresh tokens — el JWT expira en 2h y el usuario debe volver a iniciar sesión.
+- Modificación de confirmaciones existentes — habría requerido `PATCH /api/attendees/:id` con recálculo de descuentos y nueva notificación.
