@@ -109,20 +109,17 @@ export async function seedAdminUser(): Promise<void> {
   const password = process.env.ADMIN_PASSWORD;
   if (!email || !password) return;  // admin seeding not configured
 
-  const { rows } = await pool.query(
-    `SELECT id FROM users WHERE email = $1 AND role = 'admin' LIMIT 1`,
-    [email]
-  );
-  if (rows.length > 0) return; // already exists
-
+  // Always upsert — guarantees role='admin' even if the user previously
+  // registered as 'client' through the normal sign-up flow.
   const hashed = await bcrypt.hash(password, 12);
-  await pool.query(
+  const { rows } = await pool.query(
     `INSERT INTO users (email, password, role)
      VALUES ($1, $2, 'admin')
-     ON CONFLICT (email) DO UPDATE SET role = 'admin', password = EXCLUDED.password`,
+     ON CONFLICT (email) DO UPDATE SET role = 'admin', password = EXCLUDED.password
+     RETURNING email, role`,
     [email, hashed]
   );
-  console.log(`✅ Admin user seeded: ${email}`);
+  console.log(`✅ Admin user ready: ${rows[0].email} (role: ${rows[0].role})`);
 }
 
 export async function seedCatalog(): Promise<void> {
