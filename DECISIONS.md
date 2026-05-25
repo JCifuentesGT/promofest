@@ -132,11 +132,11 @@ Railway resolvió simultáneamente dos problemas:
 
 **Cómo está configurado:**
 
-| Servicio | Origen | Mecanismo |
-|---|---|---|
-| Backend | `backend/` (Dockerfile) | `railway.json` apunta al directorio; variables de entorno configuradas en el dashboard |
-| Frontend | `frontend/` (Dockerfile multi-stage) | `VITE_API_URL` se pasa como `--build-arg` para que Vite la hornee en el bundle en build time |
-| PostgreSQL | Servicio gestionado por Railway | Se referencia como `${{PostgreSQL.DATABASE_URL}}` en el backend |
+| Servicio 		| Origen 								| Mecanismo |
+|---			|---									|---|
+| Backend 		| `backend/` (Dockerfile) 				| `railway.json` apunta al directorio; variables de entorno configuradas en el dashboard |
+| Frontend 		| `frontend/` (Dockerfile multi-stage)	| `VITE_API_URL` se pasa como `--build-arg` para que Vite la hornee en el bundle en build time |
+| PostgreSQL	| Servicio gestionado por Railway 		| Se referencia como `${{PostgreSQL.DATABASE_URL}}` en el backend |
 
 **Trade-offs aceptados:**
 - En el tier gratuito de Railway, los servicios pueden hibernar tras inactividad (cold start de ~5 s en la primera petición). Aceptable para demo y evaluación.
@@ -146,14 +146,14 @@ Railway resolvió simultáneamente dos problemas:
 
 ## Limitaciones conocidas y siguientes pasos
 
-| Limitación | Impacto a 100k usuarios | Solución |
-|---|---|---|
-| Lock de fila en `event_config` | Cuello de botella severo | Contador Redis atómico |
-| Notificación simulada (logger) | No llega al equipo de ventas real | Integrar SendGrid / Twilio / Slack webhook |
-| JWT sin revocación | Tokens comprometidos siguen válidos | Redis allowlist o token rotation |
-| Sin paginación en catálogo | OK para ~10 items; lento para miles | Cursor-based pagination |
-| Sin rate limiting por IP en `/confirm` | Vulnerable a spam de confirmaciones | Rate limit granular + CAPTCHA |
-| Frontend recalcula descuentos localmente | Puede desincronizarse si cambian las reglas | Endpoint `POST /api/discount/preview` |
+| Limitación 								| Impacto a 100k usuarios 						| Solución |
+|---										|---											|---|
+| Lock de fila en `event_config` 			| Cuello de botella severo 						| Contador Redis atómico |
+| Notificación simulada (logger) 			| No llega al equipo de ventas real 			| Integrar SendGrid / Twilio / Slack webhook |
+| JWT sin revocación 						| Tokens comprometidos siguen válidos 			| Redis allowlist o token rotation |
+| Sin paginación en catálogo 				| OK para ~10 items; lento para miles			| Cursor-based pagination |
+| Sin rate limiting por IP en `/confirm` 	| Vulnerable a spam de confirmaciones 			| Rate limit granular + CAPTCHA |
+| Frontend recalcula descuentos localmente 	| Puede desincronizarse si cambian las reglas	| Endpoint `POST /api/discount/preview` |
 
 **Lo que no se implementó en esta versión:**
 - Tests unitarios (`discount.service.ts` está diseñado para ser testeable sin DB ni HTTP, pero no hay suite configurada).
