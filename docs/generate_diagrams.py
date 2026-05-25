@@ -479,27 +479,27 @@ def page_overbooking(pdf):
 
     smsg(y, T1_X, DB_X, "SELECT ... FOR UPDATE", color=BLUE)
     y -= 0.3
-    snote(y, DB_X, "T1 ADQUIERE EL LOCK 🔒", BLUE, bg=BLUE)
+    snote(y, DB_X, "T1 ADQUIERE EL LOCK [LOCKED]", BLUE, bg=BLUE)
     y -= 0.35
-    smsg(y, DB_X, T1_X, "spots_remaining = 1  ✅", color=BLUE, dashed=True)
+    smsg(y, DB_X, T1_X, "spots_remaining = 1  [OK]", color=BLUE, dashed=True)
 
     y -= 0.4
     smsg(y, T2_X, DB_X, "SELECT ... FOR UPDATE", color=ORANGE)
     y -= 0.3
-    snote(y, DB_X, "T2 BLOQUEADA — espera a T1 ⏳", ORANGE, bg=ORANGE)
+    snote(y, DB_X, "T2 BLOQUEADA — espera a T1 [WAIT]", ORANGE, bg=ORANGE)
 
     y -= 0.5
     smsg(y, T1_X, DB_X, "INSERT attendee (Usuario A)", color=BLUE)
     y -= 0.3
     smsg(y, T1_X, DB_X, "UPDATE confirmed_count + 1", color=BLUE)
     y -= 0.3
-    smsg(y, T1_X, DB_X, "COMMIT  →  libera lock", color=GREEN)
-    snote(y - 0.28, DB_X, "Lock liberado 🔓", GREEN, bg=GREEN)
+    smsg(y, T1_X, DB_X, "COMMIT  ->  libera lock", color=GREEN)
+    snote(y - 0.28, DB_X, "Lock liberado [UNLOCKED]", GREEN, bg=GREEN)
 
     y -= 0.7
     snote(y, DB_X, "T2 recibe el lock — lee nueva foto", ORANGE, bg=ORANGE)
     y -= 0.35
-    smsg(y, DB_X, T2_X, "spots_remaining = 0  ❌", color=RED, dashed=True)
+    smsg(y, DB_X, T2_X, "spots_remaining = 0  [X]", color=RED, dashed=True)
 
     y -= 0.35
     snote(y, T2_X, "ROLLBACK", RED, bg=RED)
@@ -695,8 +695,8 @@ def main():
         page_outbox(pdf)
         page_admin(pdf)
 
-    print(f"✅ PDF generado exitosamente: {OUTPUT}")
-    print("   7 páginas — incluye portada y 6 diagramas de flujo")
+    print(f"[OK] PDF generado exitosamente: {OUTPUT}")
+    print("   7 paginas -- incluye portada y 6 diagramas de flujo")
 
 
 if __name__ == "__main__":
